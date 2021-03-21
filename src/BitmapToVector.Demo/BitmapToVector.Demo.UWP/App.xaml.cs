@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -29,7 +30,11 @@ namespace BitmapToVector.Demo.UWP
         public App()
         {
             this.InitializeComponent();
-            this.Suspending += OnSuspending;
+            this.Suspending += OnSuspending; 
+            
+            UnhandledException += ((sender, args) => {
+                Debug.WriteLine(args.Exception);
+            });
         }
 
         /// <summary>

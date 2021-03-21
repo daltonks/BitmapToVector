@@ -3,16 +3,25 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:demo="clr-namespace:BitmapToVector.Demo;assembly=BitmapToVector.Demo"
              xmlns:forms="clr-namespace:SkiaSharp.Views.Forms;assembly=SkiaSharp.Views.Forms"
+             xmlns:util="clr-namespace:BitmapToVector.Demo.Util;assembly=BitmapToVector.Demo"
              x:Class="BitmapToVector.Demo.MainPage"
              x:DataType="demo:MainPageViewModel">
-    <ScrollView>
-        <StackLayout>
-            <Button Text="Browse"
-                    Command="{Binding BrowseCommand}"/>
-            <forms:SKCanvasView x:Name="CanvasView"
-                                PaintSurface="OnPaintSurface"
-                                WidthRequest="{Binding CanvasWidth}"
-                                HeightRequest="{Binding CanvasHeight}"/>
-        </StackLayout>
-    </ScrollView>
+    <ContentPage.Resources>
+        <util:PixelsToDpConverter x:Key="PixelsToDpConverter" />
+    </ContentPage.Resources>
+
+    <StackLayout>
+        <Button Text="Browse"
+                Command="{Binding BrowseCommand}"/>
+        <ScrollView HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"
+                    HorizontalScrollBarVisibility="Always" VerticalScrollBarVisibility="Always">
+            <ContentView HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                <forms:SKCanvasView x:Name="CanvasView"
+                                    HorizontalOptions="Start" VerticalOptions="Start"
+                                    PaintSurface="OnPaintSurface"
+                                    WidthRequest="{Binding CanvasWidthPixels, Converter={StaticResource PixelsToDpConverter}}"
+                                    HeightRequest="{Binding CanvasHeightPixels, Converter={StaticResource PixelsToDpConverter}}"/>
+            </ContentView>
+        </ScrollView>
+    </StackLayout>
 </ContentPage>

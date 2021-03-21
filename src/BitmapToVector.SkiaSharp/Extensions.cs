@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using SkiaSharp;
 
@@ -15,8 +17,10 @@ namespace BitmapToVector.SkiaSharp
             var (bytesPerPixel, bytesOffset) = GetBytesInfo();
             var pixelsIntPtr = bitmap.GetPixels();
             var ptr = (byte*)pixelsIntPtr.ToPointer() + bytesOffset;
-            
-            for (var y = 0; y < height; y++)
+
+            long numBlack = 0;
+            // TODO: Change back to for (var y = 0; y < height; y++)
+            for (var y = height - 1; y >= 0; y--)
             for (var x = 0; x < width; x++)
             {
                 // For speed, only check 1 byte for the pixel.
@@ -24,12 +28,19 @@ namespace BitmapToVector.SkiaSharp
                 if (*ptr < 124)
                 {
                     potraceBitmap.SetBlackUnsafe(x, y);
+                    numBlack++;
                 }
 
                 ptr += bytesPerPixel;
             }
 
             var potracePath = Potrace.Trace(param, potraceBitmap).Plist;
+            for (var i = 0; i < potracePath.Curve.N; i++)
+            {
+                var tag = potracePath.Curve.Tag[i];
+                var segment = potracePath.Curve.C[i];
+                Debug.WriteLine($"Tag: {tag}. Segment: [{string.Join(", ", segment.Select(s => $"({s.X}, {s.Y})"))}]");
+            }
             var path = new SKPath();
 
             var potraceCurve = potracePath.Curve;

@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 using BitmapToVector.Demo.Util;
+using BitmapToVector.SkiaSharp;
 using SkiaSharp;
 using SkiaSharp.Views.Forms;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace BitmapToVector.Demo
@@ -12,7 +15,7 @@ namespace BitmapToVector.Demo
         {
             Style = SKPaintStyle.Fill,
             IsAntialias = true,
-            Color = SKColors.Black
+            Color = SKColors.Red
         };
 
         private readonly Action _invalidateSurfaceAction;
@@ -21,11 +24,9 @@ namespace BitmapToVector.Demo
         {
             _invalidateSurfaceAction = invalidateSurfaceAction;
 
-            BrowseCommand = new Command(() => {
-
-            });
+            BrowseCommand = new Command(() => _ = BrowseAsync());
         }
-
+        
         public Command BrowseCommand { get; }
 
         private SKBitmap _bitmap;
@@ -35,12 +36,12 @@ namespace BitmapToVector.Demo
             set
             {
                 _bitmap?.Dispose();
-                SetProperty(ref _bitmap, value);
-                InvalidateSurface();
+                _bitmap = value;
                 if (value != null)
                 {
-                    CanvasWidth = value.Width;
-                    CanvasHeight = value.Height;
+                    CanvasWidthPixels = value.Width;
+                    CanvasHeightPixels = value.Height;
+                    Path = value.Trace(new PotraceParam());
                 }
             }
         }
@@ -52,23 +53,37 @@ namespace BitmapToVector.Demo
             set
             {
                 _path?.Dispose();
-                SetProperty(ref _path, value);
+                _path = value;
                 InvalidateSurface();
             }
         }
 
-        private int _canvasWidth = 100;
-        public int CanvasWidth
+        private int _canvasWidthPixels = 100;
+        public int CanvasWidthPixels
         {
-            get => _canvasWidth;
-            set => SetProperty(ref _canvasWidth, value);
+            get => _canvasWidthPixels;
+            set => SetProperty(ref _canvasWidthPixels, value);
         }
 
-        private int _canvasHeight = 100;
-        public int CanvasHeight
+        private int _canvasHeightPixels = 100;
+        public int CanvasHeightPixels
         {
-            get => _canvasHeight;
-            set => SetProperty(ref _canvasHeight, value);
+            get => _canvasHeightPixels;
+            set => SetProperty(ref _canvasHeightPixels, value);
+        }
+
+        private async Task BrowseAsync()
+        {
+            var pickerResult = await FilePicker.PickAsync(
+                new PickOptions {FileTypes = FilePickerFileType.Images}
+            );
+            if (pickerResult != null)
+            {
+                await MainThread.InvokeOnMainThreadAsync(async () => {
+                    using var stream = await pickerResult.OpenReadAsync();
+                    Bitmap = SKBitmap.Decode(stream);
+                });
+            }
         }
 
         private void InvalidateSurface()
@@ -79,6 +94,8 @@ namespace BitmapToVector.Demo
         public void PaintCanvas(SKPaintSurfaceEventArgs e)
         {
             var canvas = e.Surface.Canvas;
+
+            canvas.Clear(SKColors.White);
 
             if (Bitmap != null)
             {

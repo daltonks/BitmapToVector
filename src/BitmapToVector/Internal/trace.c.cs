@@ -635,8 +635,8 @@ namespace BitmapToVector.Internal
             dpoint_t s = new dpoint_t();
             int r;
             
-            ctr = new dpoint_t[m];
-            dir = new dpoint_t[m];
+            ctr = new dpoint_t[m].SetAll(() => new dpoint_t());
+            dir = new dpoint_t[m].SetAll(() => new dpoint_t());
             q = new double[m][][].SetAll(() => new double[3][].SetAll(() => new double[3]));
             
             r = privcurve_init(pp.curve, m);
