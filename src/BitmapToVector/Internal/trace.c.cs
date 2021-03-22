@@ -1,4 +1,4 @@
-﻿/* Copyright (C) 2001-2019 Peter Selinger.
+/* Copyright (C) 2001-2019 Peter Selinger.
    Copyright (C) 2021 Dalton Spillman.
    This file is part of a C# port of Potrace. It is free software and it is covered
    by the GNU General Public License. See README.md and LICENSE for details. */
@@ -398,12 +398,14 @@ namespace BitmapToVector.Internal
 	                    off.x = cur.x + ((cur.y>=0 && (cur.y>0 || cur.x<0)) ? 1 : -1);
 	                    off.y = cur.y + ((cur.x<=0 && (cur.x<0 || cur.y<0)) ? 1 : -1);
 	                    if (xprod(constraint[0], off) >= 0) {
-	                      constraint[0] = off;
-	                    }
+	                      constraint[0].x = off.x;
+                          constraint[0].y = off.y;
+                        }
 	                    off.x = cur.x + ((cur.y<=0 && (cur.y<0 || cur.x<0)) ? 1 : -1);
 	                    off.y = cur.y + ((cur.x>=0 && (cur.x>0 || cur.y<0)) ? 1 : -1);
 	                    if (xprod(constraint[1], off) <= 0) {
-	                      constraint[1] = off;
+                           constraint[1].x = off.x;
+                           constraint[1].y = off.y;
 	                    }
                     }	
                     k1 = k;

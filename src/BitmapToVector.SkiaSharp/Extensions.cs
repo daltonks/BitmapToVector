@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -55,13 +55,32 @@ namespace BitmapToVector.SkiaSharp
             var outX = 0f;
             var outY = 0f;
 
+            var lastPoint = potraceCurve.C[potraceCurve.N - 1][2];
+            path.MoveTo((float) lastPoint.X, (float) lastPoint.Y);
+
             for (var i = 0; i < potraceCurve.N; i++)
             {
                 var tag = potraceCurve.Tag[i];
                 var segment = potraceCurve.C[i];
-                ApplySegment(tag, segment);
+                if (tag == PotraceCurve.PotraceCorner)
+                {
+                    var firstPoint = segment[1];
+                    var secondPoint = segment[2];
+                    path.LineTo((float) firstPoint.X, (float) firstPoint.Y);
+                    path.LineTo((float) secondPoint.X, (float) secondPoint.Y);
+                }
+                else
+                {
+                    var handle1 = segment[0];
+                    var handle2 = segment[1];
+                    var potracePoint = segment[2];
+                    path.CubicTo(
+                        (float) handle1.X, (float) handle1.Y, 
+                        (float) handle2.X, (float) handle2.Y, 
+                        (float) potracePoint.X, (float) potracePoint.Y
+                    );
+                }
             }
-            ApplySegment(potraceCurve.Tag[0], potraceCurve.C[0]);
 
             return path;
 
@@ -100,50 +119,6 @@ namespace BitmapToVector.SkiaSharp
                         $"{nameof(SKColorType)} {colorType} is not supported"
                     );
                 }
-            }
-
-            void ApplySegment(int tag, PotraceDPoint[] segment)
-            {
-                PotraceDPoint handleIn, handleOut, potracePoint;
-                if (tag == PotraceCurve.PotraceCorner)
-                {
-                    handleIn = handleOut = potracePoint = segment[0];
-                }
-                else
-                {
-                    handleIn = segment[0];
-                    handleOut = segment[1];
-                    potracePoint = segment[2];
-                }
-
-                curX = (float) potracePoint.X;
-                curY = (float) potracePoint.Y;
-                if (first)
-                {
-                    path.MoveTo(curX, curY);
-                    first = false;
-                }
-                else
-                {
-                    inX = (float) handleIn.X;
-                    inY = (float) handleIn.Y;
-
-                    if (inX == curX && inY == curY
-                                    && outX == prevX && outY == prevY)
-                    {
-                        path.LineTo(curX, curY);
-                    }
-                    else
-                    {
-                        path.CubicTo(outX, outY, inX, inY, curX, curY);
-                    }
-                }
-
-                prevX = curX;
-                prevY = curY;
-                
-                outX = (float) handleOut.X;
-                outY = (float) handleOut.Y;
             }
         }
     }
