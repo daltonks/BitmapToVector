@@ -20,7 +20,8 @@ namespace BitmapToVector.SkiaSharp
 
             long numBlack = 0;
             // TODO: Change back to for (var y = 0; y < height; y++)
-            for (var y = height - 1; y >= 0; y--)
+            //for (var y = height - 1; y >= 0; y--)
+            for (var y = 0; y < height; y++)
             for (var x = 0; x < width; x++)
             {
                 // For speed, only check 1 byte for the pixel.
