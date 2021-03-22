@@ -332,8 +332,9 @@ namespace BitmapToVector.Internal
                 /* now do insideness test for each element of cur; append it to
                    head.childlist if it's inside head, else append it to
                    head.next. */
-                hook_in.Change(() => head.ChildList, path => head.ChildList = path);
-                hook_out.Change(() => head.Next, path => head.Next = path);
+                var tmpHead = head;
+                hook_in.Change(() => tmpHead.ChildList, path => tmpHead.ChildList = path);
+                hook_out.Change(() => tmpHead.Next, path => tmpHead.Next = path);
                   
                 for (p=cur; p != null; p=cur) {
                     cur = p.Next;
@@ -341,7 +342,7 @@ namespace BitmapToVector.Internal
                     if (p.Priv.pt[0].y <= bbox.y0) {
                         list_insert_beforehook(p, hook_out);
 	                    /* append the remainder of the list to hook_out */
-                        hook_out.Change(() => cur, path => cur = path);
+                        hook_out.Value = cur;
 	                    break;
                     }
                     if (BM_GET(bm, (int) p.Priv.pt[0].x, (int) (p.Priv.pt[0].y-1))) {
