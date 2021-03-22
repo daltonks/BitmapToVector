@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using BitmapToVector.Demo.Util;
 using BitmapToVector.SkiaSharp;
@@ -41,19 +42,22 @@ namespace BitmapToVector.Demo
                 {
                     CanvasWidthPixels = value.Width;
                     CanvasHeightPixels = value.Height;
-                    Path = value.Trace(new PotraceParam());
+                    Paths = value.Trace(new PotraceParam());
                 }
             }
         }
 
-        private SKPath _path;
-        private SKPath Path
+        private List<SKPath> _paths = new List<SKPath>();
+        private List<SKPath> Paths
         {
-            get => _path;
+            get => _paths;
             set
             {
-                _path?.Dispose();
-                _path = value;
+                foreach (var path in _paths)
+                {
+                    path.Dispose();
+                }
+                _paths = value;
                 InvalidateSurface();
             }
         }
@@ -102,9 +106,9 @@ namespace BitmapToVector.Demo
                 canvas.DrawBitmap(Bitmap, 0, 0);
             }
 
-            if (Path != null)
+            foreach(var path in Paths)
             {
-                canvas.DrawPath(Path, _pathPaint);
+                canvas.DrawPath(path, _pathPaint);
             }
         }
     }
