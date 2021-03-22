@@ -196,7 +196,7 @@ namespace BitmapToVector.Internal
            new path_t object, or NULL on error (note that a legitimate path
            cannot have length 0). Sign is required for correct interpretation
            of turnpolicies. */
-        static path_t findpath(PotraceBitmap bm, int x0, int y0, int sign, int turnpolicy) {
+        static path_t findpath(PotraceBitmap bm, int x0, int y0, char sign, int turnpolicy) {
           int x, y, dirx, diry;
           long area;
           bool c, d;
@@ -455,7 +455,7 @@ namespace BitmapToVector.Internal
             var plist_hook = new LambdaProperty<path_t>();  /* used to speed up appending to linked list */
             plist_hook.Change(() => plist, value => plist = value);
             PotraceBitmap bm1 = null;
-            int sign;
+            char sign;
 
             bm1 = bm_dup(bm);
 
