@@ -24,7 +24,6 @@ namespace BitmapToVector.Internal
         internal class privcurve_s {
             public int n;            /* number of segments */
             public int[] tag;         /* tag[n]: POTRACE_CORNER or POTRACE_CURVETO */
-            // TODO: Unsure about this one
             public dpoint_t[][] c; /* c[n][i]: control points. 
 		       c[n][0] is unused for tag[n]=POTRACE_CORNER */
             /* the remainder of this structure is special to privcurve, and is

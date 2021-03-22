@@ -8,7 +8,6 @@ using path_t = BitmapToVector.PotracePath;
 
 namespace BitmapToVector.Internal
 {
-    // TODO: Complete the C# port of this file
     public partial class PotraceInternal
     {
         static void list_forall(path_t path, Action<path_t> action)

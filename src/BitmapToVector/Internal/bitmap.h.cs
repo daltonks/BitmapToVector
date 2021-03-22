@@ -25,14 +25,12 @@ namespace BitmapToVector.Internal
         
         /* macros for accessing pixel at index (x,y). U* macros omit the
            bounds check. */
-
-        // TODO: Unsure about this
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static ulong* bm_scanline(PotraceBitmap bm, int y) {
             return (bm.Map + (long)y*bm.Dy);
         }
-
-        // TODO: Unsure about this
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static ulong* bm_index(PotraceBitmap bm, int x, int y)
         {

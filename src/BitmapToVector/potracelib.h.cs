@@ -130,7 +130,6 @@ namespace BitmapToVector
 
         public int N;                    /* number of segments */
         public int[] Tag;                 /* tag[n]: POTRACE_CURVETO or POTRACE_CORNER */
-        // TODO: Unsure about this one
         public PotraceDPoint[][] C; /* c[n][3]: control points. 
 			   c[n][0] is unused for tag[n]=POTRACE_CORNER */
     };
