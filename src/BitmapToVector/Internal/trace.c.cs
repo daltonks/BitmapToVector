@@ -842,7 +842,7 @@ namespace BitmapToVector.Internal
 
                 if (alpha >= alphamax) {  /* pointed corner */
                     curve.tag[j] = PotraceCorner;
-                    curve.c[j][1] = curve.vertex[j];
+                    curve.c[j][1] = curve.vertex[j].Clone();
                     curve.c[j][2] = p4;
                 } else {
                     if (alpha < 0.55) {
@@ -874,6 +874,25 @@ namespace BitmapToVector.Internal
             public dpoint_t[] c = new dpoint_t[2].SetAll(() => new dpoint_t());   /* curve parameters */
             public double t, s;	   /* curve parameters */
             public double alpha;	   /* curve parameter */
+
+            public opti_s Clone()
+            {
+                var result = new opti_s
+                {
+                    pen = pen,
+                    c = new PotraceDPoint[c.Length],
+                    t = t,
+                    s = s,
+                    alpha = alpha
+                };
+
+                for (var i = 0; i < c.Length; i++)
+                {
+                    result.c[i] = c[i].Clone();
+                }
+
+                return result;
+            }
         };
 
         /* calculate best fit from i+.5 to j+.5.  Assume i<j (cyclically).
@@ -1091,7 +1110,7 @@ namespace BitmapToVector.Internal
 	            pt[j] = i;
 	            pen[j] = pen[i] + o.pen;
 	            len[j] = len[i] + 1;
-	            opt[j] = o;
+	            opt[j] = o.Clone();
               }
             }
           }

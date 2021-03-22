@@ -115,6 +115,11 @@ namespace BitmapToVector
     /* point */
     public class PotraceDPoint {
         public double X, Y;
+
+        public PotraceDPoint Clone()
+        {
+            return new PotraceDPoint { X = X, Y = Y };
+        }
     };
 
     /* closed curve segment */
