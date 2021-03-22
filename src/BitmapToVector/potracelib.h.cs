@@ -142,7 +142,7 @@ namespace BitmapToVector
 
         public PotracePath Next;      /* linked list structure */
 
-        public PotracePath Childlist; /* tree structure */
+        public PotracePath ChildList; /* tree structure */
         public PotracePath Sibling;   /* tree structure */
 
         internal PotraceInternal.potrace_privpath_s Priv;  /* private state */

@@ -302,7 +302,7 @@ namespace BitmapToVector.Internal
             /* save original "next" pointers */
             list_forall(plist, path => {
                 path.Sibling = path.Next;
-                path.Childlist = null;
+                path.ChildList = null;
             });
           
             heap = plist;
@@ -317,8 +317,8 @@ namespace BitmapToVector.Internal
             while (heap != null) {
                 /* unlink first sublist */
                 cur = heap;
-                heap = heap.Childlist;
-                cur.Childlist = null;
+                heap = heap.ChildList;
+                cur.ChildList = null;
                 
                 /* unlink first path */
                 head = cur;
@@ -332,7 +332,7 @@ namespace BitmapToVector.Internal
                 /* now do insideness test for each element of cur; append it to
                    head.childlist if it's inside head, else append it to
                    head.next. */
-                hook_in.Change(() => head.Childlist, path => head.Childlist = path);
+                hook_in.Change(() => head.ChildList, path => head.ChildList = path);
                 hook_out.Change(() => head.Next, path => head.Next = path);
                   
                 for (p=cur; p != null; p=cur) {
@@ -357,12 +357,12 @@ namespace BitmapToVector.Internal
                 /* now schedule head.childlist and head.next for further
                    processing */
                 if (head.Next != null) {
-                    head.Next.Childlist = heap;
+                    head.Next.ChildList = heap;
                     heap = head.Next;
                 }
-                if (head.Childlist != null) {
-                    head.Childlist.Childlist = heap;
-                    heap = head.Childlist;
+                if (head.ChildList != null) {
+                    head.ChildList.ChildList = heap;
+                    heap = head.ChildList;
                 }
             }
             
@@ -393,11 +393,11 @@ namespace BitmapToVector.Internal
                     list_insert_beforehook(p, plist_hook);
                     
                     /* go through its children */
-                    for (p1=p.Childlist; p1 != null; p1=p1.Sibling) {
+                    for (p1=p.ChildList; p1 != null; p1=p1.Sibling) {
 	                    /* append to linked list */
                         list_insert_beforehook(p1, plist_hook);
 	                    /* append its childlist to heap, if non-empty */
-	                    if (p1.Childlist != null) {
+	                    if (p1.ChildList != null) {
 	                        var _hook = new LambdaProperty<path_t>();
                             _hook.Change(() => heap1, path => heap1 = path);
 
@@ -407,7 +407,7 @@ namespace BitmapToVector.Internal
                                 _hook.Change(() => path.Next, v => path.Next = v);
                             }
 		                    for (; _hook.Value!=null; MoveHookToNext()) {}
-		                    p1.Childlist.Next = _hook.Value; _hook.Value = p1.Childlist;
+		                    p1.ChildList.Next = _hook.Value; _hook.Value = p1.ChildList;
 	                    }
                     }
                 }
