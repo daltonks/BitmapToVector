@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using SkiaSharp;
 
 namespace BitmapToVector.SkiaSharp
@@ -22,6 +23,7 @@ namespace BitmapToVector.SkiaSharp
             var pixelsIntPtr = bitmap.GetPixels();
             var ptr = (byte*)pixelsIntPtr.ToPointer() + bytesOffset;
 
+            //for (var y = height - 1; y >= 0; y--)
             for (var y = 0; y < height; y++)
             for (var x = 0; x < width; x++)
             {
@@ -37,7 +39,53 @@ namespace BitmapToVector.SkiaSharp
 
             var traceResult = Potrace.Trace(param, potraceBitmap);
 
-            CreateSKPaths(traceResult.Plist);
+            SKPath subtractFromPath = null;
+            for (var potracePath = traceResult.Plist; potracePath != null; potracePath = potracePath.Next)
+            {
+                var path = new SKPath();
+
+                var potraceCurve = potracePath.Curve;
+
+                var lastPoint = potraceCurve.C[potraceCurve.N - 1][2];
+                path.MoveTo((float) lastPoint.X, (float) lastPoint.Y);
+
+                for (var i = 0; i < potraceCurve.N; i++)
+                {
+                    var tag = potraceCurve.Tag[i];
+                    var segment = potraceCurve.C[i];
+                    if (tag == PotraceCurve.PotraceCorner)
+                    {
+                        var firstPoint = segment[1];
+                        var secondPoint = segment[2];
+                        path.LineTo((float) firstPoint.X, (float) firstPoint.Y);
+                        path.LineTo((float) secondPoint.X, (float) secondPoint.Y);
+                    }
+                    else
+                    {
+                        var handle1 = segment[0];
+                        var handle2 = segment[1];
+                        var potracePoint = segment[2];
+                        path.CubicTo(
+                            (float) handle1.X, (float) handle1.Y, 
+                            (float) handle2.X, (float) handle2.Y, 
+                            (float) potracePoint.X, (float) potracePoint.Y
+                        );
+                    }
+                }
+                
+                if (potracePath.Sign == '+')
+                {
+                    result.Add(path);
+                    subtractFromPath = path;
+                }
+                else
+                {
+                    Debug.Assert(subtractFromPath != null);
+                    subtractFromPath.Op(path, SKPathOp.Difference, subtractFromPath);
+                }
+            }
+
+            //CreateSKPaths(traceResult.Plist);
             
             return result;
 

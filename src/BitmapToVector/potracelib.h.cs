@@ -137,7 +137,7 @@ namespace BitmapToVector
     /* Linked list of signed curve segments. Also carries a tree structure. */
     public class PotracePath {
         public int Area;                         /* area of the bitmap path */
-        public int Sign;                         /* '+' or '-', depending on orientation */
+        public char Sign;                         /* '+' or '-', depending on orientation */
         public PotraceCurve Curve = new PotraceCurve();            /* this path's vector data */
 
         public PotracePath Next;      /* linked list structure */
