@@ -5,7 +5,6 @@
 
 namespace BitmapToVector.Internal
 {
-    // TODO: Complete the C# port of this file
     public partial class PotraceInternal
     {
         double M_PI = 3.14159265358979323846;

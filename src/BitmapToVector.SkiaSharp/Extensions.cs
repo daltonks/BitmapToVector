@@ -17,9 +17,7 @@ namespace BitmapToVector.SkiaSharp
             var (bytesPerPixel, bytesOffset) = GetBytesInfo();
             var pixelsIntPtr = bitmap.GetPixels();
             var ptr = (byte*)pixelsIntPtr.ToPointer() + bytesOffset;
-            
-            // TODO: Change back to for (var y = 0; y < height; y++)
-            //for (var y = height - 1; y >= 0; y--)
+
             for (var y = 0; y < height; y++)
             for (var x = 0; x < width; x++)
             {

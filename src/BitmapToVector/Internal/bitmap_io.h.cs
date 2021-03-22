@@ -5,7 +5,6 @@
 
 namespace BitmapToVector.Internal
 {
-    // TODO: Complete the C# port of this file
     public partial class PotraceInternal
     {
     }
