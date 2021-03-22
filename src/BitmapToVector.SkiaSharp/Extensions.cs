@@ -17,8 +17,7 @@ namespace BitmapToVector.SkiaSharp
             var (bytesPerPixel, bytesOffset) = GetBytesInfo();
             var pixelsIntPtr = bitmap.GetPixels();
             var ptr = (byte*)pixelsIntPtr.ToPointer() + bytesOffset;
-
-            long numBlack = 0;
+            
             // TODO: Change back to for (var y = 0; y < height; y++)
             //for (var y = height - 1; y >= 0; y--)
             for (var y = 0; y < height; y++)
@@ -29,32 +28,16 @@ namespace BitmapToVector.SkiaSharp
                 if (*ptr < 124)
                 {
                     potraceBitmap.SetBlackUnsafe(x, y);
-                    numBlack++;
                 }
 
                 ptr += bytesPerPixel;
             }
 
             var potracePath = Potrace.Trace(param, potraceBitmap).Plist;
-            for (var i = 0; i < potracePath.Curve.N; i++)
-            {
-                var tag = potracePath.Curve.Tag[i];
-                var segment = potracePath.Curve.C[i];
-                Debug.WriteLine($"Tag: {tag}. Segment: [{string.Join(", ", segment.Select(s => $"({s.X}, {s.Y})"))}]");
-            }
+
             var path = new SKPath();
 
             var potraceCurve = potracePath.Curve;
-
-            var first = true;
-            var curX = 0f;
-            var curY = 0f;
-            var prevX = 0f;
-            var prevY = 0f;
-            var inX = 0f;
-            var inY = 0f;
-            var outX = 0f;
-            var outY = 0f;
 
             var lastPoint = potraceCurve.C[potraceCurve.N - 1][2];
             path.MoveTo((float) lastPoint.X, (float) lastPoint.Y);
