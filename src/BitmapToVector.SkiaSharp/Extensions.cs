@@ -42,16 +42,26 @@ namespace BitmapToVector.SkiaSharp
 
             var skPaths = new ConcurrentBag<SKPath>();
             var pathGroups = GetAllPathGroups(traceResult.Plist);
+            var skPathCache = new ConcurrentBag<SKPath>();
+
             Parallel.ForEach(
                 pathGroups,
-                new ParallelOptions{MaxDegreeOfParallelism = -1},
                 (potracePaths, _) =>
                 {
                     SKPath subtractFromPath = null;
+
+                    SKPath negativePath;
+                    if (!skPathCache.TryTake(out negativePath))
+                    {
+                        negativePath = new SKPath();
+                    }
+
                     foreach (var potracePath in potracePaths)
                     {
-                        var path = new SKPath();
-
+                        var path = subtractFromPath == null 
+                            ? new SKPath() 
+                            : negativePath;
+            
                         var potraceCurve = potracePath.Curve;
             
                         var lastPoint = potraceCurve.C[potraceCurve.N - 1][2];
@@ -91,10 +101,18 @@ namespace BitmapToVector.SkiaSharp
                         {
                             Debug.Assert(subtractFromPath != null, nameof(subtractFromPath) + " != null");
                             subtractFromPath.Op(path, SKPathOp.Difference, subtractFromPath);
+                            path.Reset();
                         }
                     }
+
+                    skPathCache.Add(negativePath);
                 }
             );
+
+            foreach (var cachedPath in skPathCache)
+            {
+                cachedPath.Dispose();
+            }
 
             return skPaths;
         }
