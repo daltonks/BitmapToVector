@@ -28,7 +28,7 @@ namespace BitmapToVector.SkiaSharp
                     {
                         // For speed, only check 1 byte for the pixel.
                         // This is the red color if the ColorType has a red component.
-                        if (*ptr < 124)
+                        if (*ptr < 128)
                         {
                             potraceBitmap.SetBlackUnsafe(x, y);
                         }
