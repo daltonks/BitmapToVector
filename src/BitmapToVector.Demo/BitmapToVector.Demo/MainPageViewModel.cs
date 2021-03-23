@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using BitmapToVector.Demo.Util;
 using BitmapToVector.SkiaSharp;
@@ -42,7 +43,7 @@ namespace BitmapToVector.Demo
                 {
                     CanvasWidthPixels = value.Width;
                     CanvasHeightPixels = value.Height;
-                    Paths = value.Trace(new PotraceParam());
+                    Paths = value.Trace(new PotraceParam()).ToList();
                 }
             }
         }
