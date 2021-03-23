@@ -47,26 +47,14 @@ namespace BitmapToVector.SkiaSharp
             
             var skPaths = new ConcurrentBag<SKPath>();
             var pathGroups = GetAllPathGroups(traceResult.Plist);
-            var skPathCache = new ConcurrentBag<SKPath>();
 
             Parallel.ForEach(
                 pathGroups,
                 (potracePaths, _) =>
                 {
-                    SKPath subtractFromPath = null;
-            
-                    SKPath negativePath;
-                    if (!skPathCache.TryTake(out negativePath))
-                    {
-                        negativePath = new SKPath();
-                    }
-            
+                    var path = new SKPath();
                     foreach (var potracePath in potracePaths)
                     {
-                        var path = subtractFromPath == null 
-                            ? new SKPath() 
-                            : negativePath;
-            
                         var potraceCurve = potracePath.Curve;
             
                         var lastPoint = potraceCurve.C[potraceCurve.N - 1][2];
@@ -96,28 +84,11 @@ namespace BitmapToVector.SkiaSharp
                             }
                         }
                 
-                        // The first path will always be positive, and the following negative
-                        if (subtractFromPath == null)
-                        {
-                            skPaths.Add(path);
-                            subtractFromPath = path;
-                        }
-                        else
-                        {
-                            Debug.Assert(subtractFromPath != null, nameof(subtractFromPath) + " != null");
-                            subtractFromPath.Op(path, SKPathOp.Difference, subtractFromPath);
-                            path.Reset();
-                        }
+                        path.Close();
                     }
-            
-                    skPathCache.Add(negativePath);
+                    skPaths.Add(path);
                 }
             );
-
-            foreach (var cachedPath in skPathCache)
-            {
-                cachedPath.Dispose();
-            }
 
             return skPaths;
         }
