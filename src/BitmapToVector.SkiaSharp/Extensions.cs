@@ -14,32 +14,37 @@ namespace BitmapToVector.SkiaSharp
 {
     public static class Extensions
     {
-        public static unsafe ConcurrentBag<SKPath> Trace(this SKBitmap bitmap, PotraceParam param)
+        public static ConcurrentBag<SKPath> Trace(this SKBitmap bitmap, PotraceParam param)
         {
             var width = bitmap.Width;
             var height = bitmap.Height;
-            using var potraceBitmap = PotraceBitmap.Create(width, height);
-
             var (bytesPerPixel, bytesOffset) = GetBytesInfo(bitmap.ColorType);
             var pixelsIntPtr = bitmap.GetPixels();
-            var ptr = (byte*)pixelsIntPtr.ToPointer() + bytesOffset;
-
-            //for (var y = height - 1; y >= 0; y--)
-            for (var y = 0; y < height; y++)
-            for (var x = 0; x < width; x++)
+            PotraceState traceResult;
+            unsafe
             {
-                // For speed, only check 1 byte for the pixel.
-                // This is the red color if the ColorType has a red component.
-                if (*ptr < 124)
+                var ptr = (byte*)pixelsIntPtr.ToPointer() + bytesOffset;
+                
+                using (var potraceBitmap = PotraceBitmap.Create(width, height))
                 {
-                    potraceBitmap.SetBlackUnsafe(x, y);
+                    //for (var y = height - 1; y >= 0; y--)
+                    for (var y = 0; y < height; y++)
+                    for (var x = 0; x < width; x++)
+                    {
+                        // For speed, only check 1 byte for the pixel.
+                        // This is the red color if the ColorType has a red component.
+                        if (*ptr < 124)
+                        {
+                            potraceBitmap.SetBlackUnsafe(x, y);
+                        }
+
+                        ptr += bytesPerPixel;
+                    }
+
+                    traceResult = Potrace.Trace(param, potraceBitmap);
                 }
-
-                ptr += bytesPerPixel;
             }
-
-            var traceResult = Potrace.Trace(param, potraceBitmap);
-
+            
             var skPaths = new ConcurrentBag<SKPath>();
             var pathGroups = GetAllPathGroups(traceResult.Plist);
             var skPathCache = new ConcurrentBag<SKPath>();
@@ -49,13 +54,13 @@ namespace BitmapToVector.SkiaSharp
                 (potracePaths, _) =>
                 {
                     SKPath subtractFromPath = null;
-
+            
                     SKPath negativePath;
                     if (!skPathCache.TryTake(out negativePath))
                     {
                         negativePath = new SKPath();
                     }
-
+            
                     foreach (var potracePath in potracePaths)
                     {
                         var path = subtractFromPath == null 
@@ -104,7 +109,7 @@ namespace BitmapToVector.SkiaSharp
                             path.Reset();
                         }
                     }
-
+            
                     skPathCache.Add(negativePath);
                 }
             );
