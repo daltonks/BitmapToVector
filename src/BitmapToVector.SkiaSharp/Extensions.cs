@@ -3,18 +3,19 @@
    by the GNU General Public License. See README.md and LICENSE for details. */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 using SkiaSharp;
 
 namespace BitmapToVector.SkiaSharp
 {
     public static class Extensions
     {
-        public static unsafe List<SKPath> Trace(this SKBitmap bitmap, PotraceParam param)
+        public static unsafe ConcurrentBag<SKPath> Trace(this SKBitmap bitmap, PotraceParam param)
         {
-            var result = new List<SKPath>();
-
             var width = bitmap.Width;
             var height = bitmap.Height;
             using var potraceBitmap = PotraceBitmap.Create(width, height);
@@ -39,113 +40,63 @@ namespace BitmapToVector.SkiaSharp
 
             var traceResult = Potrace.Trace(param, potraceBitmap);
 
-            // TODO: Bring this method back after debugging the CreateSKPaths method
-            //SKPath subtractFromPath = null;
-            //for (var potracePath = traceResult.Plist; potracePath != null; potracePath = potracePath.Next)
-            //{
-            //    var path = new SKPath();
-            //
-            //    var potraceCurve = potracePath.Curve;
-            //
-            //    var lastPoint = potraceCurve.C[potraceCurve.N - 1][2];
-            //    path.MoveTo((float) lastPoint.X, (float) lastPoint.Y);
-            //
-            //    for (var i = 0; i < potraceCurve.N; i++)
-            //    {
-            //        var tag = potraceCurve.Tag[i];
-            //        var segment = potraceCurve.C[i];
-            //        if (tag == PotraceCurve.PotraceCorner)
-            //        {
-            //            var firstPoint = segment[1];
-            //            var secondPoint = segment[2];
-            //            path.LineTo((float) firstPoint.X, (float) firstPoint.Y);
-            //            path.LineTo((float) secondPoint.X, (float) secondPoint.Y);
-            //        }
-            //        else
-            //        {
-            //            var handle1 = segment[0];
-            //            var handle2 = segment[1];
-            //            var potracePoint = segment[2];
-            //            path.CubicTo(
-            //                (float) handle1.X, (float) handle1.Y, 
-            //                (float) handle2.X, (float) handle2.Y, 
-            //                (float) potracePoint.X, (float) potracePoint.Y
-            //            );
-            //        }
-            //    }
-            //    
-            //    if (potracePath.Sign == '+')
-            //    {
-            //        result.Add(path);
-            //        subtractFromPath = path;
-            //    }
-            //    else
-            //    {
-            //        Debug.Assert(subtractFromPath != null);
-            //        subtractFromPath.Op(path, SKPathOp.Difference, subtractFromPath);
-            //    }
-            //}
-
-            CreateSKPaths(traceResult.Plist);
-            
-            return result;
-
-            // ReSharper disable once InconsistentNaming
-            void CreateSKPaths(PotracePath startingPath, SKPath subtractFromPath = null)
-            {
-                if (startingPath == null)
+            var skPaths = new ConcurrentBag<SKPath>();
+            var pathGroups = GetAllPathGroups(traceResult.Plist);
+            Parallel.ForEach(
+                pathGroups,
+                new ParallelOptions{MaxDegreeOfParallelism = -1},
+                (potracePaths, _) =>
                 {
-                    return;
-                }
-
-                for (var potracePath = startingPath; potracePath != null; potracePath = potracePath.Sibling)
-                {
-                    var path = new SKPath();
-
-                    var potraceCurve = potracePath.Curve;
-
-                    var lastPoint = potraceCurve.C[potraceCurve.N - 1][2];
-                    path.MoveTo((float) lastPoint.X, (float) lastPoint.Y);
-
-                    for (var i = 0; i < potraceCurve.N; i++)
+                    SKPath subtractFromPath = null;
+                    foreach (var potracePath in potracePaths)
                     {
-                        var tag = potraceCurve.Tag[i];
-                        var segment = potraceCurve.C[i];
-                        if (tag == PotraceCurve.PotraceCorner)
+                        var path = new SKPath();
+
+                        var potraceCurve = potracePath.Curve;
+            
+                        var lastPoint = potraceCurve.C[potraceCurve.N - 1][2];
+                        path.MoveTo((float) lastPoint.X, (float) lastPoint.Y);
+            
+                        for (var i = 0; i < potraceCurve.N; i++)
                         {
-                            var firstPoint = segment[1];
-                            var secondPoint = segment[2];
-                            path.LineTo((float) firstPoint.X, (float) firstPoint.Y);
-                            path.LineTo((float) secondPoint.X, (float) secondPoint.Y);
+                            var tag = potraceCurve.Tag[i];
+                            var segment = potraceCurve.C[i];
+                            if (tag == PotraceCurve.PotraceCorner)
+                            {
+                                var firstPoint = segment[1];
+                                var secondPoint = segment[2];
+                                path.LineTo((float) firstPoint.X, (float) firstPoint.Y);
+                                path.LineTo((float) secondPoint.X, (float) secondPoint.Y);
+                            }
+                            else
+                            {
+                                var handle1 = segment[0];
+                                var handle2 = segment[1];
+                                var potracePoint = segment[2];
+                                path.CubicTo(
+                                    (float) handle1.X, (float) handle1.Y, 
+                                    (float) handle2.X, (float) handle2.Y, 
+                                    (float) potracePoint.X, (float) potracePoint.Y
+                                );
+                            }
+                        }
+                
+                        // The first path will always be positive, and the following negative
+                        if (subtractFromPath == null)
+                        {
+                            skPaths.Add(path);
+                            subtractFromPath = path;
                         }
                         else
                         {
-                            var handle1 = segment[0];
-                            var handle2 = segment[1];
-                            var potracePoint = segment[2];
-                            path.CubicTo(
-                                (float) handle1.X, (float) handle1.Y, 
-                                (float) handle2.X, (float) handle2.Y, 
-                                (float) potracePoint.X, (float) potracePoint.Y
-                            );
+                            Debug.Assert(subtractFromPath != null, nameof(subtractFromPath) + " != null");
+                            subtractFromPath.Op(path, SKPathOp.Difference, subtractFromPath);
                         }
                     }
-
-                    SKPath childSubtractFromPath;
-                    if (subtractFromPath == null)
-                    {
-                        result.Add(path);
-                        childSubtractFromPath = path;
-                    }
-                    else
-                    {
-                        subtractFromPath.Op(path, SKPathOp.Difference, subtractFromPath);
-                        childSubtractFromPath = null;
-                    }
-
-                    CreateSKPaths(potracePath.ChildList, childSubtractFromPath);
                 }
-            }
+            );
+
+            return skPaths;
         }
 
         private static (int BytesPerPixel, int Offset) GetBytesInfo(SKColorType colorType)
@@ -181,6 +132,29 @@ namespace BitmapToVector.SkiaSharp
                 default:
                     throw new ArgumentOutOfRangeException($"{nameof(SKColorType)} {colorType} is not supported");
             }
+        }
+
+        private static List<List<PotracePath>> GetAllPathGroups(PotracePath rootPath)
+        {
+            var result = new List<List<PotracePath>>();
+
+            var currentPath = rootPath;
+            while (currentPath != null)
+            {
+                var group = new List<PotracePath>();
+                group.Add(currentPath);
+
+                currentPath = currentPath.Next;
+                while (currentPath?.Sign == '-')
+                {
+                    group.Add(currentPath);
+                    currentPath = currentPath.Next;
+                }
+
+                result.Add(group);
+            }
+
+            return result;
         }
     }
 }
