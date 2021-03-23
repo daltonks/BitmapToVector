@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,7 +45,10 @@ namespace BitmapToVector.Demo
                 {
                     CanvasWidthPixels = value.Width;
                     CanvasHeightPixels = value.Height;
-                    Paths = Bitmap.Trace(new PotraceParam()).ToList();
+                    var stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                    Paths = PotraceSkiaSharp.Trace(new PotraceParam(), Bitmap).ToList();
+                    Debug.WriteLine($"Trace time seconds: {stopwatch.Elapsed.TotalSeconds}");
                 }
             }
         }

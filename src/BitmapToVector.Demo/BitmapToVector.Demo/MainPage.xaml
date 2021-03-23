@@ -14,7 +14,8 @@
         <Button Text="Browse"
                 Command="{Binding BrowseCommand}"/>
         <ScrollView HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"
-                    HorizontalScrollBarVisibility="Always" VerticalScrollBarVisibility="Always">
+                    HorizontalScrollBarVisibility="Always" VerticalScrollBarVisibility="Always"
+                    Orientation="Both">
             <ContentView HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
                 <forms:SKCanvasView x:Name="CanvasView"
                                     HorizontalOptions="Start" VerticalOptions="Start"

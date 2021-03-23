@@ -3,18 +3,14 @@
    by the GNU General Public License. See README.md and LICENSE for details. */
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using SkiaSharp;
 
 namespace BitmapToVector.SkiaSharp
 {
-    public static class Extensions
+    public static class PotraceSkiaSharp
     {
-        public static ConcurrentBag<SKPath> Trace(this SKBitmap bitmap, PotraceParam param)
+        public static IEnumerable<SKPath> Trace(PotraceParam param, SKBitmap bitmap)
         {
             var width = bitmap.Width;
             var height = bitmap.Height;
@@ -27,7 +23,6 @@ namespace BitmapToVector.SkiaSharp
                 
                 using (var potraceBitmap = PotraceBitmap.Create(width, height))
                 {
-                    //for (var y = height - 1; y >= 0; y--)
                     for (var y = 0; y < height; y++)
                     for (var x = 0; x < width; x++)
                     {
@@ -44,53 +39,80 @@ namespace BitmapToVector.SkiaSharp
                     traceResult = Potrace.Trace(param, potraceBitmap);
                 }
             }
-            
-            var skPaths = new ConcurrentBag<SKPath>();
-            var pathGroups = GetAllPathGroups(traceResult.Plist);
 
-            Parallel.ForEach(
-                pathGroups,
-                (potracePaths, _) =>
+            return CreateSKPaths(traceResult.Plist);
+        }
+
+        public static IEnumerable<SKPath> Trace(PotraceParam param, PotraceBitmap potraceBitmap)
+        {
+            var traceResult = Potrace.Trace(param, potraceBitmap);
+            return CreateSKPaths(traceResult.Plist);
+        }
+
+        private static IEnumerable<SKPath> CreateSKPaths(PotracePath rootPath)
+        {
+            var pathGroups = GetPathGroups(rootPath);
+            foreach (var pathGroup in pathGroups)
+            {
+                var path = new SKPath();
+
+                foreach (var potracePath in pathGroup)
                 {
-                    var path = new SKPath();
-                    foreach (var potracePath in potracePaths)
+                    var potraceCurve = potracePath.Curve;
+            
+                    var lastPoint = potraceCurve.C[potraceCurve.N - 1][2];
+                    path.MoveTo((float) lastPoint.X, (float) lastPoint.Y);
+            
+                    for (var i = 0; i < potraceCurve.N; i++)
                     {
-                        var potraceCurve = potracePath.Curve;
-            
-                        var lastPoint = potraceCurve.C[potraceCurve.N - 1][2];
-                        path.MoveTo((float) lastPoint.X, (float) lastPoint.Y);
-            
-                        for (var i = 0; i < potraceCurve.N; i++)
+                        var tag = potraceCurve.Tag[i];
+                        var segment = potraceCurve.C[i];
+                        if (tag == PotraceCurve.PotraceCorner)
                         {
-                            var tag = potraceCurve.Tag[i];
-                            var segment = potraceCurve.C[i];
-                            if (tag == PotraceCurve.PotraceCorner)
-                            {
-                                var firstPoint = segment[1];
-                                var secondPoint = segment[2];
-                                path.LineTo((float) firstPoint.X, (float) firstPoint.Y);
-                                path.LineTo((float) secondPoint.X, (float) secondPoint.Y);
-                            }
-                            else
-                            {
-                                var handle1 = segment[0];
-                                var handle2 = segment[1];
-                                var potracePoint = segment[2];
-                                path.CubicTo(
-                                    (float) handle1.X, (float) handle1.Y, 
-                                    (float) handle2.X, (float) handle2.Y, 
-                                    (float) potracePoint.X, (float) potracePoint.Y
-                                );
-                            }
+                            var firstPoint = segment[1];
+                            var secondPoint = segment[2];
+                            path.LineTo((float) firstPoint.X, (float) firstPoint.Y);
+                            path.LineTo((float) secondPoint.X, (float) secondPoint.Y);
                         }
-                
-                        path.Close();
+                        else
+                        {
+                            var handle1 = segment[0];
+                            var handle2 = segment[1];
+                            var potracePoint = segment[2];
+                            path.CubicTo(
+                                (float) handle1.X, (float) handle1.Y, 
+                                (float) handle2.X, (float) handle2.Y, 
+                                (float) potracePoint.X, (float) potracePoint.Y
+                            );
+                        }
                     }
-                    skPaths.Add(path);
+                
+                    path.Close();
                 }
-            );
 
-            return skPaths;
+                yield return path;
+            }
+        }
+
+        private static IEnumerable<IEnumerable<PotracePath>> GetPathGroups(PotracePath rootPath)
+        {
+            var currentPath = rootPath;
+            while (currentPath != null)
+            {
+                yield return GetNextGroup();
+            }
+
+            IEnumerable<PotracePath> GetNextGroup()
+            {
+                yield return currentPath;
+
+                currentPath = currentPath.Next;
+                while (currentPath?.Sign == '-')
+                {
+                    yield return currentPath;
+                    currentPath = currentPath.Next;
+                }
+            }
         }
 
         private static (int BytesPerPixel, int Offset) GetBytesInfo(SKColorType colorType)
@@ -126,29 +148,6 @@ namespace BitmapToVector.SkiaSharp
                 default:
                     throw new ArgumentOutOfRangeException($"{nameof(SKColorType)} {colorType} is not supported");
             }
-        }
-
-        private static List<List<PotracePath>> GetAllPathGroups(PotracePath rootPath)
-        {
-            var result = new List<List<PotracePath>>();
-
-            var currentPath = rootPath;
-            while (currentPath != null)
-            {
-                var group = new List<PotracePath>();
-                group.Add(currentPath);
-
-                currentPath = currentPath.Next;
-                while (currentPath?.Sign == '-')
-                {
-                    group.Add(currentPath);
-                    currentPath = currentPath.Next;
-                }
-
-                result.Add(group);
-            }
-
-            return result;
         }
     }
 }
