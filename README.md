@@ -1,6 +1,6 @@
-[![NuGet](https://img.shields.io/nuget/v/BitmapToVector)](https://www.nuget.org/packages/BitmapToVector) [BitmapToVector](https://www.nuget.org/packages/BitmapToVector)
+[![NuGet BitmapToVector](https://img.shields.io/nuget/v/BitmapToVector?label=BitmapToVector)](https://www.nuget.org/packages/BitmapToVector)
 
-[![NuGet](https://img.shields.io/nuget/v/BitmapToVector.SkiaSharp)](https://www.nuget.org/packages/BitmapToVector.SkiaSharp) [BitmapToVector.SkiaSharp](https://www.nuget.org/packages/BitmapToVector.SkiaSharp)
+[![NuGet BitmapToVector.SkiaSharp](https://img.shields.io/nuget/v/BitmapToVector.SkiaSharp?label=BitmapToVector.SkiaSharp)](https://www.nuget.org/packages/BitmapToVector.SkiaSharp)
 
 # BitmapToVector
 .NET Standard port of [Potrace](http://potrace.sourceforge.net/). In this port, I aim to keep the syntax and comments as close to the C version as possible. This will help with keeping up to date on any new Potrace versions. I only aim to use typical C# syntax in the public API.
