@@ -6,13 +6,13 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild> 
     <Authors>Dalton Spillman</Authors> 
     <Product /> 
-    <Description>.NET Standard port of Potrace! Also includes the bits to support SkiaSharp's SKBitmap and SKPath. Just add SkiaSharp to your project and use Potrace.Trace(...) or SkiaSharpPotrace.Trace(...).</Description> 
+    <Description>.NET Standard port of Potrace! Also includes the bits to support SkiaSharp's SKBitmap and SKPath. Just add SkiaSharp to your project and use Potrace.Trace(...) or PotraceSkiaSharp.Trace(...).</Description> 
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression> 
     <PackageProjectUrl>https://github.com/daltonks/BitmapToVector</PackageProjectUrl> 
     <RepositoryUrl>https://github.com/daltonks/BitmapToVector</RepositoryUrl> 
     <RepositoryType>git</RepositoryType> 
-    <PackageReleaseNotes>Update version to 1.16.0 to match Potrace 1.16.</PackageReleaseNotes> 
-    <Version>1.16.0</Version> 
+    <PackageReleaseNotes>Fix package description.</PackageReleaseNotes> 
+    <Version>1.16.1</Version> 
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
