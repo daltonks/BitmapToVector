@@ -13,7 +13,7 @@ Usage:
 // Create PotraceBitmap
 var width = 100;
 var height = 100;
-var potraceBitmap = PotraceBitmap.Create(width, height);
+using var potraceBitmap = PotraceBitmap.Create(width, height);
 
 // Add black pixels
 potraceBitmap.SetBlackUnsafe(0, 0);
