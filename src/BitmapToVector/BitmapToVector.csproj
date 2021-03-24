@@ -1,7 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild> 
+    <Authors>Dalton Spillman</Authors> 
+    <Product /> 
+    <Description>.NET Standard port of Potrace! Just use Potrace.Trace(PotraceParam, PotraceBitmap).</Description> 
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression> 
+    <PackageProjectUrl>https://github.com/daltonks/BitmapToVector</PackageProjectUrl> 
+    <RepositoryUrl>https://github.com/daltonks/BitmapToVector</RepositoryUrl> 
+    <RepositoryType>git</RepositoryType> 
+    <PackageReleaseNotes>Update version to 1.16.0 to match Potrace 1.16.</PackageReleaseNotes> 
+    <Version>1.16.0</Version> 
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
