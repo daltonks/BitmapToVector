@@ -3,6 +3,8 @@
    This file is part of a C# port of Potrace. It is free software and it is covered
    by the GNU General Public License. See README.md and LICENSE for details. */
 
+using System;
+using System.Diagnostics;
 using BitmapToVector.Internal;
 using static BitmapToVector.PotraceState;
 using progress_t = BitmapToVector.Internal.PotraceInternal.progress_s;
@@ -27,7 +29,7 @@ namespace BitmapToVector
 
             /* allocate state object */
             st = new PotraceState();
-
+            
             PotraceInternal.progress_subrange_start(0.0, 0.1, prog, subprog);
 
             /* process the image */
@@ -45,6 +47,22 @@ namespace BitmapToVector
             PotraceInternal.process_path(plist, param, subprog);
 
             PotraceInternal.progress_subrange_end(prog, subprog);
+
+            // Quantization
+            if (param.QuantizeUnit != null)
+            {
+                var quantizeUnit = param.QuantizeUnit.Value;
+                for (var path = plist; path != null; path = path.Next)
+                {
+                    var c = path.Curve.C;
+                    foreach (var array in c)
+                    foreach (var point in array)
+                    {
+                        point.X = Math.Floor(point.X * quantizeUnit) / quantizeUnit;
+                        point.Y = Math.Floor(point.Y * quantizeUnit) / quantizeUnit;
+                    }
+                }
+            }
 
             return st;
         }
