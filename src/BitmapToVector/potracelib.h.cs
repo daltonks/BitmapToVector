@@ -39,6 +39,10 @@ namespace BitmapToVector
         public double AlphaMax = 1.0;     /* corner threshold */
         public bool OptiCurve = true;       /* use curve optimization? */
         public double OptTolerance = 0.2; /* curve optimization tolerance */
+        /// <summary>
+        /// Quantize output to 1/QuantizeUnit units. Null for no quantization.
+        /// </summary>
+        public uint? QuantizeUnit;
         public PotraceProgress Progress = new PotraceProgress { /* progress callback function */
             Callback = null,      /* callback function */
             Data = null,          /* callback data */
