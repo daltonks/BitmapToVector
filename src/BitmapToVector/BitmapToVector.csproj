@@ -10,8 +10,8 @@
     <PackageProjectUrl>https://github.com/daltonks/BitmapToVector</PackageProjectUrl> 
     <RepositoryUrl>https://github.com/daltonks/BitmapToVector</RepositoryUrl> 
     <RepositoryType>git</RepositoryType> 
-    <PackageReleaseNotes>Update version to 1.16.0 to match Potrace 1.16.</PackageReleaseNotes> 
-    <Version>1.16.0</Version> 
+    <PackageReleaseNotes>Added optional quantization with PotraceParam.QuantizeUnit</PackageReleaseNotes> 
+    <Version>1.16.2</Version> 
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
