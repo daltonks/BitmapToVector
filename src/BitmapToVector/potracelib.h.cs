@@ -90,6 +90,12 @@ namespace BitmapToVector
         internal PotraceBitmap() { }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsBlackUnsafe(int x, int y)
+        {
+            return PotraceInternal.BM_UGET(this, x, y);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetBlackUnsafe(int x, int y)
         {
             PotraceInternal.BM_USET(this, x, y);
@@ -99,6 +105,48 @@ namespace BitmapToVector
         public void SetWhiteUnsafe(int x, int y)
         {
             PotraceInternal.BM_UCLR(this, x, y);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void InverseColorUnsafe(int x, int y)
+        {
+            PotraceInternal.BM_UINV(this, x, y);
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetColorUnsafe(int x, int y, bool isBlack)
+        {
+            PotraceInternal.BM_UPUT(this, x, y, isBlack);
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsBlack(int x, int y)
+        {
+            return PotraceInternal.BM_GET(this, x, y);
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetBlack(int x, int y)
+        {
+            PotraceInternal.BM_SET(this, x, y);
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetWhite(int x, int y)
+        {
+            PotraceInternal.BM_CLR(this, x, y);
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void InverseColor(int x, int y)
+        {
+            PotraceInternal.BM_INV(this, x, y);
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetColor(int x, int y, bool isBlack)
+        {
+            PotraceInternal.BM_PUT(this, x, y, isBlack);
         }
 
         public void Dispose()

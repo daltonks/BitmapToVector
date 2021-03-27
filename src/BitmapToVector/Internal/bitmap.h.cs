@@ -44,24 +44,24 @@ namespace BitmapToVector.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool bm_safe(PotraceBitmap bm, int x, int y) => (bm_range(x, (bm).W) && bm_range(y, (bm).H));
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static bool BM_UGET(PotraceBitmap bm, int x, int y) => ((*bm_index(bm, x, y) & bm_mask(x)) != 0);
+        internal static bool BM_UGET(PotraceBitmap bm, int x, int y) => ((*bm_index(bm, x, y) & bm_mask(x)) != 0);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static ulong BM_USET(PotraceBitmap bm, int x, int y) => (*bm_index(bm, x, y) |= bm_mask(x));
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static ulong BM_UCLR(PotraceBitmap bm, int x, int y) => (*bm_index(bm, x, y) &= ~bm_mask(x));
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static ulong BM_UINV(PotraceBitmap bm, int x, int y) => (*bm_index(bm, x, y) ^= bm_mask(x));
+        internal static ulong BM_UINV(PotraceBitmap bm, int x, int y) => (*bm_index(bm, x, y) ^= bm_mask(x));
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static ulong BM_UPUT(PotraceBitmap bm, int x, int y, bool b) => ((b) ? BM_USET(bm, x, y) : BM_UCLR(bm, x, y));
+        internal static ulong BM_UPUT(PotraceBitmap bm, int x, int y, bool b) => ((b) ? BM_USET(bm, x, y) : BM_UCLR(bm, x, y));
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static bool BM_GET(PotraceBitmap bm, int x, int y) => (bm_safe(bm, x, y) ? BM_UGET(bm, x, y) : false);
-        static ulong BM_SET(PotraceBitmap bm, int x, int y) => (bm_safe(bm, x, y) ? BM_USET(bm, x, y) : 0);
+        internal static bool BM_GET(PotraceBitmap bm, int x, int y) => (bm_safe(bm, x, y) ? BM_UGET(bm, x, y) : false);
+        internal static ulong BM_SET(PotraceBitmap bm, int x, int y) => (bm_safe(bm, x, y) ? BM_USET(bm, x, y) : 0);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static ulong BM_CLR(PotraceBitmap bm, int x, int y) => (bm_safe(bm, x, y) ? BM_UCLR(bm, x, y) : 0);
+        internal static ulong BM_CLR(PotraceBitmap bm, int x, int y) => (bm_safe(bm, x, y) ? BM_UCLR(bm, x, y) : 0);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static ulong BM_INV(PotraceBitmap bm, int x, int y) => (bm_safe(bm, x, y) ? BM_UINV(bm, x, y) : 0);
+        internal static ulong BM_INV(PotraceBitmap bm, int x, int y) => (bm_safe(bm, x, y) ? BM_UINV(bm, x, y) : 0);
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static ulong BM_PUT(PotraceBitmap bm, int x, int y, bool b) => (bm_safe(bm, x, y) ? BM_UPUT(bm, x, y, b) : 0);
+        internal static ulong BM_PUT(PotraceBitmap bm, int x, int y, bool b) => (bm_safe(bm, x, y) ? BM_UPUT(bm, x, y, b) : 0);
 
         /* calculate the size, in bytes, required for the data area of a
            bitmap of the given dy and h. Assume h >= 0. Return -1 if the size
