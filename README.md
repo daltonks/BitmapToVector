@@ -29,7 +29,9 @@ Usage:
    Note: Potrace images are only black and white. If you want to create one from a specific image, you could iterate over the source image's pixels and SetBlackUnsafe wherever you want the Potrace image pixel to be black.
    BitmapToVector doesn't have features to determine which pixels "should" be black, so that part is up to you.
 
-3. Refer to Potrace's [technical documentation](http://potrace.sourceforge.net/potracelib.pdf) for more information.
+   If you're using `BitmapToVector.SkiaSharp`, `PotraceSkiaSharp.Trace` will treat all pixels with a red value less than 128 as "black".
+
+4. Refer to Potrace's [technical documentation](http://potrace.sourceforge.net/potracelib.pdf) for more information.
 
 # BitmapToVector.SkiaSharp
 Builds off of BitmapToVector and adds support for `SKPath` and `SKBitmap`.
