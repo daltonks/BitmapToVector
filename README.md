@@ -44,7 +44,7 @@ Usage:
    IEnumerable<SKPath> skPathsFromSKBitmap = PotraceSkiaSharp.Trace(PotraceParam, SKBitmap);
    IEnumerable<SKPath> skPathsFromPotraceBitmap = PotraceSkiaSharp.Trace(PotraceParam, PotraceBitmap);
    ```
-   Note: `Trace` will treat all pixels with a red value less than 128 as "black".
+   Note: `PotraceSkiaSharp.Trace` will treat all pixels with a red value less than 128 as "black".
 
 ## Licensing
 Please note the GPL-3.0 license. This can have big implications if you decide to use this library.
