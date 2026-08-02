@@ -3,9 +3,9 @@
 [![NuGet BitmapToVector](https://img.shields.io/nuget/v/BitmapToVector?label=BitmapToVector)](https://www.nuget.org/packages/BitmapToVector)
 [![NuGet BitmapToVector.SkiaSharp](https://img.shields.io/nuget/v/BitmapToVector.SkiaSharp?label=BitmapToVector.SkiaSharp)](https://www.nuget.org/packages/BitmapToVector.SkiaSharp)
 
-A .NET Standard port of [Potrace](http://potrace.sourceforge.net/), which turns a black-and-white bitmap into smooth vector outlines. It is the algorithm behind Inkscape's Trace Bitmap, running in managed C# with no native dependency.
+A .NET Standard port of [Potrace](http://potrace.sourceforge.net/), which turns a black-and-white bitmap into smooth vector outlines. It's the algorithm behind Inkscape's Trace Bitmap, in managed C# with no native dependency.
 
-The port stays as close to the C source as it can — same structure, same comments, same file names — so that future Potrace releases are straightforward to fold in. Only the public API is written in idiomatic C#.
+The port stays as close to the C source as it can: same structure, same comments, same file names. That makes new Potrace releases easier to fold in. Only the public API is written in normal C#.
 
 > **Read the license section before you use this.** Potrace is GPL, so this port is too.
 
@@ -36,9 +36,9 @@ var traceResult = Potrace.Trace(param, potraceBitmap);
 // bezier and corner segments, and ChildList/Sibling forming the hole tree.
 ```
 
-A `PotraceBitmap` is one bit per pixel: black or white, nothing in between. Deciding *which* pixels should be black — thresholding, edge detection, alpha, whatever suits your image — is up to you. This library doesn't do it.
+A `PotraceBitmap` is one bit per pixel, black or white. Deciding which pixels should be black is up to you, whether that means a threshold, edge detection, or an alpha test. This library doesn't do it.
 
-Every pixel operation comes in two forms. `SetBlack`, `SetWhite`, `SetColor`, `InverseColor`, and `IsBlack` bounds-check first, and quietly ignore coordinates that fall outside the bitmap. The `...Unsafe` versions skip the check, which is faster when you are already looping within known bounds — and will corrupt memory if you aren't.
+Every pixel operation comes in two forms. `SetBlack`, `SetWhite`, `SetColor`, `InverseColor`, and `IsBlack` bounds-check first, and ignore coordinates outside the bitmap. The `...Unsafe` versions skip the check. They're faster when you're already looping within known bounds, and they will corrupt memory when you aren't.
 
 ### Tracing options
 
@@ -52,7 +52,7 @@ Every pixel operation comes in two forms. `SetBlack`, `SetWhite`, `SetColor`, `I
 | `OptiCurve` | true | Join adjacent bezier segments where one curve will do. |
 | `OptTolerance` | 0.2 | How much error that joining may introduce. |
 
-Potrace's [technical documentation](http://potrace.sourceforge.net/potracelib.pdf) explains all of them in more depth, and applies directly here.
+Potrace's [technical documentation](http://potrace.sourceforge.net/potracelib.pdf) covers all of them in more depth and applies directly here.
 
 ## BitmapToVector.SkiaSharp
 
@@ -61,7 +61,7 @@ dotnet add package BitmapToVector.SkiaSharp
 dotnet add package SkiaSharp
 ```
 
-Skips the curve types and gives you paths you can draw:
+Skips the curve types and gives you paths you can draw with:
 
 ```cs
 IEnumerable<SKPath> paths = PotraceSkiaSharp.Trace(new PotraceParam(), skBitmap);
@@ -79,4 +79,4 @@ Converting an `SKBitmap` counts a pixel as black when its **red** channel is und
 
 GPL-3.0-or-later, inherited from Potrace itself.
 
-This is not a formality. The GPL is copyleft: if you distribute software that links this library, that software has to be licensed under the GPL as well, with source available. That rules it out for most closed-source and commercial work. If your project can't accept those terms, [Potrace offers commercial licensing](http://potrace.sourceforge.net/#license) — take it up with the Potrace authors, not with me.
+The GPL is copyleft. If you distribute software that links this library, that software has to be GPL as well, with source available. That rules it out for most closed-source and commercial work. [Potrace offers commercial licensing](http://potrace.sourceforge.net/#license) if you need different terms.
